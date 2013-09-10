@@ -48,7 +48,7 @@ git clone https://github.com/Shougo/unite.vim.git ~/.vim/bundle
 git clone https://github.com/m2mdas/phpcomplete-extended.git ~/.vim/bundle
 ```
 
-## NeoBundle (prefered)
+## NeoBundle (preferred)
 Put these lines in `.vimrc` and issue `source %` command
 
 ```vim
