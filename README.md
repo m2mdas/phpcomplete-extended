@@ -14,13 +14,23 @@ autocomplete this plugin have several code inspection features,
 * Go to definition of a symbol. Also context aware.
 * Automatically add use statement of current completed word. Also added plugin
   command of this action.
-* If (Unite) plugin installed following sources are available,
+* If [unite.vim](https://github.com/Shougo/unite.vim/) plugin installed following sources are available,
     * `phpcomplete/files`           : Lists PHP files of the project.
     * `phpcomplete/vendors`         : Lists vendor directories
     * `phpcomplete/extends`         : Lists classes that extends the class guessed from
       the current cursor word.
     * `phpcomplete/implements`      : Lists classes that implements the class guessed
       from the current cursor word.
+
+Demo videos (click on the image to goto youtube)
+-----------------------------------------------
+## Autocomplete demo video:
+
+[![ScreenShot](http://img.youtube.com/vi/yZYFKslqkC8/maxresdefault.jpg)](http://www.youtube.com/watch?v=yZYFKslqkC8)
+
+## Unite sources demo video:
+
+[![ScreenShot](http://i1.ytimg.com/vi/Wd5G7QA3OFw/maxresdefault.jpg)](http://www.youtube.com/watch?v=Wd5G7QA3OFw)
 
 Installation
 -------------
