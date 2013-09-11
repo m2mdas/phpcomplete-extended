@@ -1,7 +1,7 @@
 "=============================================================================
 " AUTHOR:  Mun Mun Das <m2mdas at gmail.com>
 " FILE: phpcomplete_extended.vim
-" Last Modified: September 10, 2013
+" Last Modified: September 11, 2013
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -398,6 +398,7 @@ function! s:geussLocalVarType(var, sourceFQCN, lines) "{{{
         elseif match(line, '@var\s*'.var.'\s*.*') >=0
             "@var $var fqcn"
             let fqcn = phpcomplete_extended#util#trim(matchstr(line, '@var\s*'.var.'\s*\zs.*\ze\s*\*'))
+            let fqcn = phpcomplete_extended#getFQCNFromWord(fqcn)
         endif
 
         if fqcn != ""
