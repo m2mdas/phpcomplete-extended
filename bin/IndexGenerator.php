@@ -3,7 +3,7 @@
  *=============================================================================
  * AUTHOR:  Mun Mun Das <m2mdas at gmail.com>
  * FILE: IndexGenerator.php
- * Last Modified: September 10, 2013
+ * Last Modified: September 11, 2013
  * License: MIT license  {{{
  *     Permission is hereby granted, free of charge, to any person obtaining
  *     a copy of this software and associated documentation files (the
@@ -402,6 +402,7 @@ class IndexGenerator
                 //|| preg_match('/DateTime/', $file) //zend
                 || preg_match('/DateTimeSelect/', $file) //zend
                 || preg_match('/MonthSelect/', $file) //zend
+                || preg_match('/PropelDataCollector/', $file) //zend
             ){
                 continue;
             }
@@ -1477,3 +1478,4 @@ class IndexGenerator
         $this->coreIndex = json_decode(file_get_contents($this->coreIndexFile), true);
     }
 }
+
