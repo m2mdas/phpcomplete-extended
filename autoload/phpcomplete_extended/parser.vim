@@ -12,7 +12,7 @@ let s:lexer_symbols = [
     \ ['colon'             , ':']             , ['question'          , '?']      ,
     \ ['new'               , 'new']           , ['tab'               , '\t']     ,
     \ ['right_arrow'       , '<']             , ['left_arrow'        , '>']      ,
-    \ ['function'          , 'function']      , ['use'               , 'use'],
+    \ ['function'          , 'function']      ,
     \ ['ampersand'         , '&']             , ['front_slash'       , '/']      ,
     \ ['ns_seperator'      , "\\"]            , ['underscore'        , '_']      ,
     \ ['equal'             , '=']             , ['negate'            , '!']      ,
@@ -21,7 +21,7 @@ let s:lexer_symbols = [
     \ ['plus'              , '+']             , ['star', '*'], ['dot', '\.'],
     \ ['tild'              , '^']             ,
     \ ['alnum'             , '[[:alnum:]]\+']        , ['whitespace'        , '\s\+']   ,
-    \ ['xothers'            , '[^[:alnum:]]\+']
+    \ ['use'               , 'use']       ,['xothers'            , '[^[:alnum:]]\+']
     \]
 
 function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
