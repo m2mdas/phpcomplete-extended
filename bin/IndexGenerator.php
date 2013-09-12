@@ -3,7 +3,7 @@
  *=============================================================================
  * AUTHOR:  Mun Mun Das <m2mdas at gmail.com>
  * FILE: IndexGenerator.php
- * Last Modified: September 11, 2013
+ * Last Modified: September 12, 2013
  * License: MIT license  {{{
  *     Permission is hereby granted, free of charge, to any person obtaining
  *     a copy of this software and associated documentation files (the
@@ -281,7 +281,7 @@ class IndexGenerator
         $classCache['fqcn_file'][$fqcn]     = $fileName;
 
         file_put_contents('.phpcomplete_extended/'. $cacheFileName, json_encode($fileData));
-        file_put_contents('.phpcomplete_extended/tags.json', json_encode($classCache));
+        file_put_contents('.phpcomplete_extended/phpcomplete_index', json_encode($classCache));
         $this->execHook("postUpdateIndex", false, $classData, $classCache, $this);
         $this->writePluginIndexes();
 
