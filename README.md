@@ -148,7 +148,7 @@ and vim part is responsible for providing autocomplete menu entries based on the
 index. For reference see
 [phpcomplete-extended-symfony](https://github.com/m2mdas/phpcomplete-extended-symfony)
 and
-[phpcomplete-extended-laravlel](https://github.com/m2mdas/phpcomplete-extended-laravlel) plugins.
+[phpcomplete-extended-laravlel](https://github.com/m2mdas/phpcomplete-extended-laravel) plugins.
 
 License
 -------
