@@ -132,6 +132,13 @@ Neocomplete support is built-in and my preferred autocomplete plugin. It needs
 vim with lua bindings. To know more about installation refer to the plugin
 repository.
 
+## [supertab](https://github.com/ervandew/supertab)
+
+Minimal configuration for supertab support,
+
+    autocmd  FileType  php setlocal omnifunc=phpcomplete_extended#CompletePHP
+    let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+
 ## [YouCompleteMe](https://github.com/Valloric/YouCompleteMe)
 
 If `omnifunc` set the omni completer of `YouCompleteMe` should get the completion
