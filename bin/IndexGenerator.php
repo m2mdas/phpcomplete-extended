@@ -3,7 +3,7 @@
  *=============================================================================
  * AUTHOR:  Mun Mun Das <m2mdas at gmail.com>
  * FILE: IndexGenerator.php
- * Last Modified: September 12, 2013
+ * Last Modified: October 04, 2013
  * License: MIT license  {{{
  *     Permission is hereby granted, free of charge, to any person obtaining
  *     a copy of this software and associated documentation files (the
@@ -402,10 +402,11 @@ class IndexGenerator
                 //|| preg_match('/DateTime/', $file) //zend
                 || preg_match('/DateTimeSelect/', $file) //zend
                 || preg_match('/MonthSelect/', $file) //zend
-                || preg_match('/PropelDataCollector/', $file) //zend
+                //|| preg_match('/PropelDataCollector/', $file) //zend
             ){
                 continue;
             }
+
 
             if(!$this->validateClass($file)) {
                 $this->invalidClasses[] = $file;
@@ -635,13 +636,12 @@ class IndexGenerator
 
         $parsedClassData = $this->parseClass($fileName);
         $namespaces = $parsedClassData['namespaces'];
-        //if(!array_key_exists('file', $namespaces)){
-        //return false;
-        //}
         $classLineData = $parsedClassData['class_line_data'];
         $classTokens = array();
         $classTokens[] = $classLineData['extends'];
         $classTokens = array_merge($classTokens,  $classLineData['implements']);
+        $className = $classLineData['classname'];
+        $tokens = array();
         //print_r($namespaces);exit;
         foreach($classTokens as $classToken) {
             if(empty($classToken)) {
@@ -664,7 +664,30 @@ class IndexGenerator
                 return false;
             }
         }
-        $className = $classLineData['classname'];
+        foreach($parsedClassData['constructor_arguments'] as $classToken) {
+            if(empty($classToken)) {
+                continue;
+            }
+            if($classToken == $className) {
+                continue;
+            }
+            $fqcn = $this->guessClass($classToken, $namespaces);
+            if(empty($fqcn)) {
+                return false;
+            }
+            if(!array_key_exists($fqcn, $this->fqcn_file)) { //it may be an internal interface
+                try {
+                    $reflectionClass = new \ReflectionClass($fqcn);
+                    continue;
+                } catch (\Exception $e) {
+                    return false;
+                }
+            }
+            $isValidFqcnProperties = $this->validateClass($this->fqcn_file[$fqcn]);
+            if(!$isValidFqcnProperties) {
+                return false;
+            }
+        }
 
         if(array_key_exists($className, $this->fqcn_file) && $this->fqcn_file[$className] == $fileName) {
             $classFqcn = $className;
@@ -919,7 +942,7 @@ class IndexGenerator
         }
     }
 
-    private function guessClass($classToken, $namespaces) 
+    private function guessClass($classToken, $namespaces)
     {
         if(empty($classToken)) {
             return "";
@@ -1225,27 +1248,44 @@ class IndexGenerator
         $fullLine = "";
         $isClassLine = false;
         $classLine = "";
+        $useEnded = false;
+
+        $isConstructorLine = false;
+        $constructorLine = "";
 
         foreach ($classContent as $line) {
+
             $line = trim(str_replace("<?php", "", $line), "\t\n ");
-            if(!$isMultiLine && !$isClassLine && count(explode(";", $line)) > 2) {
+            if(!$isMultiLine && !$isClassLine && !$isConstructorLine && !$useEnded && count(explode(";", $line)) > 2) {
                 $formattedClassContent = array_merge($formattedClassContent, explode(';', $line));
                 continue;
             }
+
             if($isClassLine) {
                 $classLine .= " " . $line;
                 if(strpos($classLine, "{")) {
                     $isClassLine = false;
+                    $useEnded = true;
                     $formattedClassContent[] = trim($classLine, "{}");
                 }
             }
 
-            if(!$isMultiLine && !$isClassLine &&
+            if($isConstructorLine) {
+                $constructorLine .= " " . $line;
+                if(strpos($constructorLine, "{")) {
+                    $isConstructorLine = false;
+                    $formattedClassContent[] = trim($constructorLine, "{}");
+                    break;
+                }
+            }
+
+            if(!$isMultiLine && !$isClassLine && !$isConstructorLine &&
                 (
                     preg_match("/^\s*namespace/", $line) 
                     || preg_match("/^\s*use/", $line) 
                     || preg_match("/^\s*(abstract|final)?\s*(class|interface)/", $line) 
                     || preg_match("/^\s*interface/", $line)
+                    || preg_match("/^\s*public\s+function\s+__construct/", $line)
                 )
             ){
                 if(preg_match("/^\s*(abstract|final)?\s*(class|interface)/", $line )) {
@@ -1255,10 +1295,24 @@ class IndexGenerator
                         continue;
                     } else {
                         $isClassLine = false;
+                        $useEnded = false;
                         $formattedClassContent[] = trim($line, ";{}");
                         continue;
                     }
                 }
+
+                if(preg_match("/^\s*public\s+function\s+__construct/", $line)) {
+                    if(strpos($line, ")") === false) {
+                        $isConstructorLine = true;
+                        $constructorLine .= trim($line, ";");
+                        continue;
+                    } else {
+                        $isConstructorLine = false;
+                        $formattedClassContent[] = trim($line, ";{}");
+                        break;
+                    }
+                }
+
                 if(strpos($line, ";") === false && strpos($line, ",") >= 0) {
                     $isMultiLine = true;
                     $multiLine .= $line;
@@ -1297,15 +1351,14 @@ class IndexGenerator
         $className = "";
         $extends = array();
         $implements = array();
+        $constructorArguments = array();
         $classNameregex = "/^\s*(abstract|final)?(\s+)?(class)\s+([\\\\,\w]+)(\s+extends\s+([\\\\\w]+))?(\s+implements\s+([^{]*))?/";
         $interfaceRegex = "/^\s*interface\s+([\\\\,\w]+)(\s+extends(.*))?/"; 
+        $constructorRegex = "/^\s*public\s+function\s+__construct\((.*)\)/";
         $classContent = file($fileName);
         $formattedClassContent = $this->formatClassContent($classContent);
         $parseEnded = false;
         foreach ($formattedClassContent as $line) {
-            if($parseEnded) {
-                break;
-            }
             if(preg_match("/\s*namespace\s+(.*)(;)?/", $line, $matches)) {
                 $namespace = trim($matches[1], ";");
             }
@@ -1381,7 +1434,23 @@ class IndexGenerator
                         }
                     }
                 }
-                $parseEnded = true;
+            }
+            if(preg_match($constructorRegex, $line, $matches)) {
+                $arguments = explode(",", $matches[1]);
+                foreach ($arguments as $argument) {
+                    $argument = trim($argument);
+                    if(isset($argument[0]) && $argument[0] == '$') {
+                        continue;
+                    }
+                    $segments = preg_split("/\s+/", $argument);
+                    if(count($segments) == 1) {
+                        continue;
+                    }
+                    if($this->isScalar($segments[0])) {
+                        continue;
+                    }
+                    $constructorArguments[] = $segments[0];
+                }
             }
             if(preg_match($interfaceRegex, $line, $matches)) {
                 $className = $matches[1];
@@ -1420,7 +1489,8 @@ class IndexGenerator
                 'implements' => $implements,
                 'extends' => $extends,
                 'classname' => $className
-            )
+            ), 
+            'constructor_arguments' =>  $constructorArguments
         );
         //ldd($parsedData);
         $this->parsedClasses[$fileName] = $parsedData;
