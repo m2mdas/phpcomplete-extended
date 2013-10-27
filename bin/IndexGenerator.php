@@ -798,7 +798,6 @@ class IndexGenerator
         $out               = array();
         $out['params']     = array();
         $out['docComment'] = $this->trimDocComment($docComment);
-        $out['signature']  = trim($classContent[$reflectionMethod->getStartLine()-1]);
         $out['inheritdoc'] = $parsedComment['inheritdoc'];
         $out['startLine']  = $startLine;
         $out['endLine']    = $endLine;
@@ -807,6 +806,7 @@ class IndexGenerator
         $origin = $this->normalizePath($origin);
         $out['origin'] = $origin;
 
+        $params = array();
         foreach ($parameters as $parameter) {
             $parameterName = '$'.$parameter->getName();
             try {
@@ -823,13 +823,14 @@ class IndexGenerator
             } else {
                 $parameterType = $parameter->getClass()->getName();
             }
+            $params[] = $parameterType. ' '. $parameterName;
             $out['params'][$parameterName] = $parameterType;
         }
 
         if(array_key_exists('return', $parsedComment) && $parsedComment['return'] != "") {
             $returnType  = "";
             $arrayReturn = 0;
-            $returnTypes = explode('|', $parsedComment['return']);
+            $returnTypes = explode('|', trim($parsedComment['return']));
             foreach ($returnTypes as $rType) {
                 if(preg_match('/\[\]$/', $rType)) {
                     $arrayReturn = 1;
@@ -850,6 +851,9 @@ class IndexGenerator
             }
             $out['array_return'] = $arrayReturn;
         }
+
+        $return = empty($parsedComment['return'])? "none" : $parsedComment['return'];
+        $out['signature']  = '('. join(', ', $params) . ')  : '. $return;
 
         foreach($modifiers as $modifier) {
             $classData['methods']['modifier'][$modifier][] = $reflectionMethod->name;
