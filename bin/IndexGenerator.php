@@ -828,8 +828,13 @@ class IndexGenerator
 
         if(array_key_exists('return', $parsedComment) && $parsedComment['return'] != "") {
             $returnType  = "";
+            $arrayReturn = 0;
             $returnTypes = explode('|', $parsedComment['return']);
             foreach ($returnTypes as $rType) {
+                if(preg_match('/\[\]$/', $rType)) {
+                    $arrayReturn = 1;
+                    $rType = trim($rType, "[]");
+                }
                 if(!$this->isScalar($rType)) {
                     $returnType = $rType;
                     if($returnType[0] == '\\') {
@@ -843,6 +848,7 @@ class IndexGenerator
             } else {
                 $out['return'] = $this->guessClass($returnType, $classData['namespaces']);
             }
+            $out['array_return'] = $arrayReturn;
         }
 
         foreach($modifiers as $modifier) {
@@ -925,9 +931,16 @@ class IndexGenerator
         $type = $parsedComment['var'];
         $out = array();
         $out['type'] = "";
+        $out['array_type'] = 0;
+        if(preg_match('/\[\]$/', $type)) {
+            $out['array_type'] = 1;
+        }
         if(!$this->isScalar($type) && !empty($type)) {
             if($type[0] == '\\') {
                 $type = substr($type, 1);
+            }
+            if(preg_match('/\[\]$/', $type)) {
+                $type = trim($type, "[]");
             }
             $out['type'] = $this->guessClass($type, $classData['namespaces']);
         }

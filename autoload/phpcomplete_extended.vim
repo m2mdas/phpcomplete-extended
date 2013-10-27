@@ -320,20 +320,40 @@ function! s:getFQCNFromTokens(parsedTokens, currentFQCN, isThis) "{{{
 
     let isThis = a:isThis
 
+    let isPrevTokenArray = 0
+
+    if currentFQCN =~  '\[\]$' && len(parsedTokens) 
+                \ && has_key(parsedTokens[0], 'isArrayElement')
+        let currentFQCN = matchstr(currentFQCN, '\zs.*\ze\[\]$')
+        let isPrevTokenArray = 1
+    endif
     for token in parsedTokens
         let insideBraceText = token['insideBraceText']
         let methodPropertyText = token['methodPropertyText']
         let insideBraceText = token['insideBraceText']
+        let isArrayElement = has_key(token, 'isArrayElement')? 1 :0
         let currentClassData = phpcomplete_extended#getClassData(currentFQCN)
+        
         let  pluginFQCN = s:get_plugin_fqcn(currentFQCN,token)
 
         if insideBraceText[0] == "("
             let currentFQCN = ""
         elseif pluginFQCN != ""
             let currentFQCN = pluginFQCN
+        elseif isArrayElement 
+            let isPrevTokenArray = 0
+            if phpcomplete_extended#isClassOfType(currentFQCN, 'ArrayAccess') 
+                    \ && has_key(currentClassData['methods']['all'], 'offsetGet')
+                let offsetType = currentClassData['methods']['all']['offsetGet']['return']
+                if empty(offsetType)
+                    return ""
+                endif
+                let currentFQCN = offsetType
+            endif
+            continue
         else
             let classPropertyType = token.isMethod == 1 ? 'method' : 'property'
-            let currentFQCN = phpcomplete_extended#getFQCNForClassProperty(
+            let [currentFQCN, isPrevTokenArray] = phpcomplete_extended#getFQCNForClassProperty(
                 \ classPropertyType, methodPropertyText, currentFQCN, isThis)
 
         endif
@@ -345,6 +365,9 @@ function! s:getFQCNFromTokens(parsedTokens, currentFQCN, isThis) "{{{
             return ""
         endif
     endfor
+    if isPrevTokenArray
+        return currentFQCN . '[]'
+    endif
     return currentFQCN
 
 endfunction "}}}
@@ -438,7 +461,7 @@ function! phpcomplete_extended#trackMenuChanges() "{{{
     let current_char = getline('.')[col('.') -2]
 
     if !pumvisible() && s:psr_class_complete
-        \ && (current_char == '(' || current_char == ':')
+        \ && (current_char == '(' || current_char == ':' || current_char == ' ')
         let s:psr_class_complete = 0
         let cur_pos = getpos(".")
         let prev_pos = copy(cur_pos)
@@ -809,34 +832,16 @@ function! phpcomplete_extended#parsereverse(cursorLine, cursorLineNumber) "{{{
         return []
     endif
     let cursorLine = phpcomplete_extended#util#trim(a:cursorLine)
-    let cursorLineNumber = a:cursorLineNumber
-    let iterCount = 5
-    let lineCount = 10
-    let currentLine = cursorLineNumber - 1
+    let parsedTokens = []
     let parsedTokens = phpcomplete_extended#parser#reverseParse(cursorLine, [])
-    if empty(parsedTokens)
-        return []
-    endif
-    let isStart = parsedTokens[0].start
-    if !isStart
-        for i in range(0, iterCount)
-            let lines = phpcomplete_extended#util#getLines(currentLine, lineCount, "back")
-            let parsedTokens = phpcomplete_extended#parser#reverseParse(lines, parsedTokens)
-            if empty(parsedTokens)
-                return []
-            endif
 
-            let isStart = parsedTokens[0].start
 
-            if isStart
-                break
-            endif
-            let lineCount += lineCount
-        endfor
-    endif
-    let isStart = parsedTokens[0].start
-    if !isStart
-        return []
+    if empty(parsedTokens) 
+            \ || (len(parsedTokens) && has_key(parsedTokens[0], 'start') && parsedTokens[0].start == 0)
+        let linesTillFunc = s:getLinesTilFunc(a:cursorLineNumber)
+        let joinedLines = join(reverse(linesTillFunc),"")
+        let parsedTokens =  phpcomplete_extended#parser#reverseParse(joinedLines, [])
+        return parsedTokens
     endif
     return parsedTokens
 endfunction "}}}
@@ -908,13 +913,14 @@ function! phpcomplete_extended#getFQCNForClassProperty(type, property, parent_fq
     let is_this = a:is_this
     let property = a:property
     let classname = ''
+    let isArray = 0
 
     let this_fqcn = a:parent_fqcn
     let this_fqcn = s:get_plugin_resolve_fqcn(this_fqcn)
     let this_class_data = phpcomplete_extended#getClassData(this_fqcn)
 
     if empty(this_class_data)
-        return ""
+        return ["", 0]
     endif
 
 
@@ -922,20 +928,26 @@ function! phpcomplete_extended#getFQCNForClassProperty(type, property, parent_fq
     if type == 'property'
         let this_properties = this_class_data['properties']['all']
         if !has_key(this_properties, property)
-            return ''
+            return ['', 0]
         endif
         let classname = this_properties[property]['type']
+        if has_key(this_properties[property], 'array_type')
+            let isArray = this_properties[property]['array_type']
+        endif
     elseif type == 'method'
         let this_methods = this_class_data['methods']['all']
         if !has_key(this_methods, property)
-            return ''
+            return ['', 0]
         endif
         if has_key(this_methods[property], 'return')
             let classname = this_methods[property]['return']
+            if has_key(this_methods[property], 'array_return')
+                let isArray = this_methods[property]['array_return']
+            endif
         endif
     endif
 
-    return classname
+    return [classname, isArray]
 endfunction " }}}
 
 function! s:getClassMenuEntries(base) "{{{
