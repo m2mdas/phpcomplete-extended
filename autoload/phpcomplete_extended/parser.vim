@@ -29,7 +29,6 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
     if line == ""
         return [{'insideBraceText': '', 'methodPropertyText': '', 'nonClass': 1, 'start': 1}]
     endif
-    PrettyPrint line[29]
     let parsedTokens = a:parsedTokens
     let braceStack = []
     let quoteStack = []
