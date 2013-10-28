@@ -1273,6 +1273,7 @@ class IndexGenerator
         foreach ($classContent as $line) {
 
             $line = trim(str_replace("<?php", "", $line), "\t\n ");
+            $line = str_replace('/* final */', "", $line);
             if(!$isMultiLine && !$isClassLine && !$isConstructorLine && !$useEnded && count(explode(";", $line)) > 2) {
                 $formattedClassContent = array_merge($formattedClassContent, explode(';', $line));
                 continue;
@@ -1433,7 +1434,7 @@ class IndexGenerator
                         if(empty($implement)) { 
                             continue;
                         }
-                        $implement = trim($implement, " \n\r");
+                        $implement = trim($implement, " \n\r{");
                         if(strpos($implement, "\\")) {
                             $useTokens = explode("\\", $implement);
                             $firstToken = $useTokens[0];
@@ -1466,7 +1467,20 @@ class IndexGenerator
                     if($this->isScalar($segments[0])) {
                         continue;
                     }
-                    $constructorArguments[] = $segments[0];
+                    $argumentFQCN = $segments[0];
+                    if(strpos($segments[0], "\\")) {
+                        $useTokens = explode("\\", $segments[0]);
+                        $firstToken = $useTokens[0];
+                        $lastToken = array_pop($useTokens);
+                        $constructorArguments[] = $lastToken;
+                        if(array_key_exists($firstToken, $uses)) {
+                            $uses[$lastToken] = $uses[$firstToken]. "\\" . join("\\", $useTokens);
+                        } else {
+                            $uses[$lastToken] = $namespace . "\\" . join("\\", $useTokens);
+                        }
+                    } else {
+                        $constructorArguments[] = $argumentFQCN;
+                    }
                 }
             }
             if(preg_match($interfaceRegex, $line, $matches)) {
@@ -1474,7 +1488,7 @@ class IndexGenerator
                 if(!empty($matches[3])) {
                     foreach (explode(",", $matches[3]) as $implement) {
                         //triplicate, will extract later
-                        $implement = trim($implement, " \n\r");
+                        $implement = trim($implement, " \n\r{");
                         if(strpos($implement, "\\")) {
                             $useTokens = explode("\\", $implement);
                             $firstToken = $useTokens[0];
