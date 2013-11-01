@@ -153,10 +153,9 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
             let close_brace = parser.consume()['matched_text']
             if empty(braceStack) 
                     \ && (previousToken == "static_resolutor" || previousToken == "object_resolutor")
-                    \ && (parser.next_is('close_brace') || parser.next_is('identifier'))
+                    \ && (parser.next_is('close_brace'))
 
                 "(new Foo())->bar
-                "(new Foo)->bar
                 let maybeNew = 1
                 continue
             elseif empty(braceStack)
