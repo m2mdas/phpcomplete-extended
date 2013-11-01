@@ -821,7 +821,8 @@ function! s:parseForward(lines, varLine) "{{{
     let joinedLine = varDecLine.join(lines, "")
     let parsedTokens = []
     let parsedTokens = phpcomplete_extended#parser#forwardParse(joinedLine, parsedTokens)
-    if len(parsedTokens) > 0 && parsedTokens[-1].pEnd != 1
+
+    if len(parsedTokens) && !has_key(parsedTokens[-1], 'pEnd')
         return []
     endif
     return parsedTokens
