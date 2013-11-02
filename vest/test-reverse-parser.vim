@@ -153,11 +153,44 @@ Context reverse_parser
                     "\,[]),
                     "\ [{'isMethod': 0, 'insideBraceText': '', 'isNew': 1, 'methodPropertyText': 'Foo', 'start': 1}, {'isMethod': 1, 'insideBraceText': '', 'methodPropertyText': 'bar', 'start': 0}]
 
-        ShouldEqual phpcomplete_extended#parser#reverseParse(
-                    \ "(new Foo('bar'))->baz('bzzz')"
-                    \,[]),
-                    \ [{'isMethod': 0, 'insideBraceText': '''bar''', 'isNew': 1, 'methodPropertyText': 'Foo', 'start': 1}, {'isMethod': 1, 'insideBraceText': '''bzzz''', 'methodPropertyText': 'baz', 'start': 0}]
+        "ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    "\ "(new Foo('bar'))->baz('bzzz')"
+                    "\,[]),
+                    "\ [{'isMethod': 0, 'insideBraceText': '''bar''', 'isNew': 1, 'methodPropertyText': 'Foo', 'start': 1}, {'isMethod': 1, 'insideBraceText': '''bzzz''', 'methodPropertyText': 'baz', 'start': 0}]
 
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \ '$this->foo($bar->baz())->'
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$this', 'start': 1},
+                    \ {'insideBraceText': '$bar->baz', 'isMethod': 1, 'methodPropertyText': 'foo', 'start': 0},
+                    \ {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '', 'start': 0}]
+
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \ '$this->foo($bar->baz("bzz"))->'
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$this', 'start': 1},
+                    \ {'insideBraceText': '$bar->baz"bzz"', 'isMethod': 1, 'methodPropertyText': 'foo', 'start': 0},
+                    \ {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '', 'start': 0}]
+
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \  '$this->foo($bar->baz[])->'
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$this', 'start': 1},
+                    \ {'insideBraceText': '$bar->baz', 'isMethod': 1, 'methodPropertyText': 'foo', 'start': 0},
+                    \ {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '', 'start': 0}]
+
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \ '$this->foo($bar->baz["dfdfa"])->'
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$this', 'start': 1},
+                    \ {'insideBraceText': '$bar->baz"dfdfa"', 'isMethod': 1, 'methodPropertyText': 'foo', 'start': 0},
+                    \ {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '', 'start': 0}]
+
+
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \ 'return new Foo'
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'isNew': 1, 'methodPropertyText': 'Foo', 'start': 1}]
 
     End
 

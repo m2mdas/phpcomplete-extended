@@ -3,20 +3,21 @@ set cpo&vim
 
 let s:lexer_symbols = [
     \ ['new'               , '\<new\>'] ,
-    \ ['identifier'        , '\h\w*']   , ['whitespace'         , '\s*'] ,
-    \ ['open_brace'        , '(']       , ['close_brace'        , ')']   ,
-    \ ['dollar'            , '\$']      ,
-    \ ['single_quote'      , "'"]       , ['double_quote'       , '"']   ,
-    \ ["object_resolutor"  , "->"]      , ['static_resolutor'   , "::"]  ,
-    \ ['curly_brace_open'  , '{']       , ['curly_brace_close'  , '}']   ,
-    \ ['square_brace_open' , '[']       , ['square_brace_close' , ']']   ,
-    \ ['ns_seperator'      , "\\"]      , ['equal'              , '=']   ,
-    \ ['front_slash'       , "/"]       , ['star'               , '*']   ,
-    \ ['alpha'             , "@"]       , ['plus'               , '+']   ,
-    \ ['OR'                , "|"]       , ['AND'                , '&']   ,
-    \ ['negate'            , "!"]       , ['dash'               , '-']   ,
-    \ ['semicolon'         , ';']       , ['colon', ':'],
-    \ ['dot'               , '\.']      ,
+    \ ['identifier'        , '\h\w*'] , ['whitespace'         , '\s*'] ,
+    \ ['open_brace'        , '(']     , ['close_brace'        , ')']   ,
+    \ ['dollar'            , '\$']    ,
+    \ ['single_quote'      , "'"]     , ['double_quote'       , '"']   ,
+    \ ["object_resolutor"  , "->"]    , ['static_resolutor'   , "::"]  ,
+    \ ['curly_brace_open'  , '{']     , ['curly_brace_close'  , '}']   ,
+    \ ['square_brace_open' , '[']     , ['square_brace_close' , ']']   ,
+    \ ['ns_seperator'      , "\\"]    , ['equal'              , '=']   ,
+    \ ['front_slash'       , "/"]     , ['star'               , '*']   ,
+    \ ['alpha'             , "@"]     , ['plus'               , '+']   ,
+    \ ['OR'                , "|"]     , ['AND'                , '&']   ,
+    \ ['negate'            , "!"]     , ['dash'               , '-']   ,
+    \ ['semicolon'         , ';']     , ['colon'              , ':']   ,
+    \ ['dot'               , '\.']    ,
+    \ ['left_arrow'        , '>']     , ['right_arrow'        , '<']   ,
     \['comma'             , ','],
     \['others'            , '[^()\[\]""'',;:*/@|&+!-]\+'] ,
 \]
@@ -119,8 +120,11 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
                 \ || parser.next_is("ns_seperator")
                 \)
                 let methodPropertyText = identifier .methodPropertyText
-            
+
             else
+                if(isArray) 
+                    let isArray  = 0
+                endif
                 let insideBraceText = identifier .insideBraceText
             endif
             let previousToken = "identifier"
@@ -151,14 +155,19 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
             endif
         elseif parser.next_is('close_brace') || parser.next_is("square_brace_close")
             let close_brace = parser.consume()['matched_text']
-            if empty(braceStack) 
-                    \ && (previousToken == "static_resolutor" || previousToken == "object_resolutor")
-                    \ && (parser.next_is('close_brace'))
+            "if empty(braceStack)
+                    "\ && (previousToken == "static_resolutor" || previousToken == "object_resolutor")
+                    "\ && (parser.next_is('close_brace'))
 
-                "(new Foo())->bar
-                let maybeNew = 1
-                continue
-            elseif empty(braceStack)
+                ""(new Foo())->bar
+                "let maybeNew = 1
+                "continue
+            if (empty(quoteStack)  && (
+                        \ (close_brace == ')' && parser.next_is('open_brace'))
+                        \ || (close_brace == ']' && parser.next_is('square_brace_open'))
+                        \ || (previousToken == 'object_resolutor' || previousToken == 'static_resolutor')
+                        \ || (parser.next_is('single_quote') || parser.next_is('double_quote'))
+                    \))
                 call List.push(braceStack, close_brace)
                 if (close_brace == ")" && isArray && previousToken == "square_brace_open")
                     "'$this->foo()[]->'
@@ -233,7 +242,7 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
         elseif parser.next_is('new')
             let new = parser.consume()['matched_text']
             if empty(braceStack) 
-                        \ &&  (parser.end() || parser.next_is('open_brace'))
+                        \ &&  (parser.next_is('whitespace') || parser.end() || parser.next_is('open_brace'))
                 let parsedObject = s:createParsedObject(insideBraceText, methodPropertyText, 0, 1)
                 let parsedObject.isNew = 1
                 call insert(parsedTokens, parsedObject)
