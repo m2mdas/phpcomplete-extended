@@ -349,7 +349,11 @@ function! phpcomplete_extended#parser#forwardParse(line, parsedTokens) "{{{
             let previousToken = "dollar"
         elseif parser.next_is('identifier')
             let identifier = parser.consume()['matched_text']
-            if empty(previousToken) && parser.next_is('static_resolutor')
+
+            if !empty(braceStack)
+                let insideBraceText .= identifier
+
+            elseif empty(previousToken) && parser.next_is('static_resolutor')
                 let parsedObject = s:createParsedObject('', identifier, 0, 1)
                 let parsedObject.isStatic = 1
                 let parsedObject.nonClass = 1
@@ -369,8 +373,6 @@ function! phpcomplete_extended#parser#forwardParse(line, parsedTokens) "{{{
                     \ && isNew && (parser.next_is('open_brace') || parser.next_is('close_brace'))
                 let methodPropertyText = identifier
 
-            elseif !empty(braceStack)
-                let insideBraceText .= identifier
             endif
             let previousToken = "identifier"
         elseif parser.next_is("object_resolutor") || parser.next_is('static_resolutor')
@@ -413,11 +415,11 @@ function! phpcomplete_extended#parser#forwardParse(line, parsedTokens) "{{{
             let previousToken = "new"
         elseif parser.next_is('open_brace') || parser.next_is('square_brace_open')
             let open_brace = parser.consume()['matched_text']
-            if parser.next_is('new')
+            if (empty(previousToken)) && parser.next_is('new')
                 continue
 
-            elseif (empty(braceStack) && previousToken == "close_brace" && open_brace == "[") 
-                    \ || (empty(braceStack) && previousToken == 'identifier')
+            elseif (previousToken == "close_brace" && open_brace == "[") 
+                    \ || (previousToken == 'identifier')
                 call List.push(braceStack, open_brace)
                 if open_brace == "["
                     let isArray  = 1
