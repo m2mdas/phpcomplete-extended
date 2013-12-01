@@ -1608,6 +1608,10 @@ function! s:updateMenuEntries(className) "{{{
 endfunction "}}}
 
 function! phpcomplete_extended#isClassOfType(classFQCN, typeFQCN) "{{{
+    if a:classFQCN == a:typeFQCN
+        return 1
+    endif
+
     if has_key(g:phpcomplete_index['extends'], a:typeFQCN)
         \ && index(g:phpcomplete_index['extends'][a:typeFQCN], a:classFQCN) >= 0
         return 1
