@@ -244,6 +244,7 @@ class IndexGenerator
         $implements      = $classCache['implements'];
         $this->fqcn_file = $classCache['fqcn_file'];
         $this->file_fqcn = $classCache['file_fqcn'];
+        $this->class_fqcn = $classCache['class_fqcn'];
         $fileData        = array();
         if(!is_file($this->pluginIndexFile)) {
             $pluginIndex = array();
@@ -270,6 +271,8 @@ class IndexGenerator
 
         $classData                    = $this->processClass($fqcn);
         $classCache['classes'][$fqcn] = $classData;
+        $classCache['class_fqcn'] = $this->class_fqcn;
+        $classCache['class_func_menu_entries'] = $this->createMenuEntries($this->class_fqcn, $this->coreIndex['function_list']);
 
         $fileData['classdata']['file'] = $fileName;
         $fileData['classdata']['fqcn'] = $fqcn;
@@ -732,20 +735,28 @@ class IndexGenerator
         if(!$docComment) {
             $docComment = "";
         }
+        preg_match("/(\\\\)?(\w+)$/", $reflectionClass->name, $classNameMatches);
         $classData['docComment']         = $this->trimDocComment($docComment);
         $classContent                    = $this->getClassContent($reflectionClass->getFileName(), $fqcn);
 
         $classData['namespaces']['file'] = $reflectionClass->getNamespaceName();
         $parsedClassData                 = $this->parseClass($classData['file']);
-        $className                       = $parsedClassData['class_line_data']['classname'];
+        $className                       = $classNameMatches[2];
         $classData['namespaces']         = $parsedClassData['namespaces'];
         $classData['className']          = $className;
         $this->classes[]                 = $className;
 
         if(array_key_exists($className, $this->class_fqcn)) {
-            if(is_array( $this->class_fqcn[$className] )) {
+            if(is_array($this->class_fqcn[$className])
+                && !in_array($fqcn, $this->class_fqcn[$className])
+            ) {
+
                 $this->class_fqcn[$className][] = $fqcn;
-            } else {
+
+            } elseif(is_string($this->class_fqcn[$className])
+                && $this->class_fqcn[$className] != $fqcn
+            ) {
+
                 $fqcns                        = array();
                 $fqcns[]                      = $this->class_fqcn[$className];
                 $fqcns[]                      = $fqcn;

@@ -1523,6 +1523,7 @@ function! s:updateLocalCache(updateData) "{{{
     call s:setClassData(fqcn, file, classData)
     call s:updateIntrospectionData('extends', fqcn, extendsData)
     call s:updateIntrospectionData('implements', fqcn, implementsData)
+    call s:updateMenuEntries(classData['className'])
 endfunction "}}}
 
 function! s:updateIntrospectionData(type,fqcn, data) "{{{
@@ -1548,6 +1549,49 @@ function! s:updateIntrospectionData(type,fqcn, data) "{{{
 
         call remove(collection[removed], index(collection[removed], fqcn))
     endfor
+endfunction "}}}
+
+function! s:updateMenuEntries(className) "{{{
+    let className = a:className
+    let fqcns = g:phpcomplete_index['class_fqcn'][className]
+    let class_menu_entries = g:phpcomplete_index['class_func_menu_entries']
+    let idx = 0
+
+    for class_menu_entry in class_menu_entries
+        if class_menu_entry['word'] =~ '^'. className
+            call remove(class_menu_entries, idx)
+        endif
+        let idx = idx + 1
+    endfor
+
+    let menu_entries = []
+    if type(fqcns) == type('')
+        call add(menu_entries,  {
+            \ 'word': className,
+            \ 'kind': 'c',
+            \ 'menu': fqcns,
+            \ 'info': fqcns
+            \ }
+        \)
+
+    elseif type(fqcns) == type([])
+        let i = 1
+        for fqcn in fqcns
+            call add(menu_entries , {
+                \ 'word': className. '-'. i,
+                \ 'kind': 'c',
+                \ 'menu': fqcn,
+                \ 'info': fqcn
+                \}
+            \)
+            let i = i + 1
+        endfor
+    endif
+    for menu_entry in menu_entries
+        " add at last for now
+        call add(class_menu_entries, menu_entry)
+    endfor
+
 endfunction "}}}
 
 function! phpcomplete_extended#isClassOfType(classFQCN, typeFQCN) "{{{
