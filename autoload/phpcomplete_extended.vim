@@ -551,6 +551,7 @@ function! phpcomplete_extended#addUse(word, fqcn) "{{{
     endif
 
     let last_use_pos = -1
+    let namespace_pos = -1
 
     for line in lines_to_class
         if match(line, '^\s*use\s*'.escape(fqcn, '\').'\s*;') >= 0
@@ -559,9 +560,13 @@ function! phpcomplete_extended#addUse(word, fqcn) "{{{
         if match(line, '^\s*use\s*.*;') >=0
             let last_use_pos = index(lines_to_class, line)+1
         endif
+        if match(line, '^\s*namespace\s*.*;') >=0
+            let namespace_pos = index(lines_to_class, line)+1
+        endif
+
     endfor
     if last_use_pos == -1
-        let last_use_pos = (len(lines_to_class) - 2) != 0? len(lines_to_class) - 2 : len(lines_to_class) - 1
+        let last_use_pos = namespace_pos == -1? 1 : namespace_pos + 1
     endif
     call append(last_use_pos, ['use '. fqcn. ';'])
     let cur_pos[1] = cur_pos[1] +1
