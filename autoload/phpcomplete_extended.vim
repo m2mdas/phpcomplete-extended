@@ -1536,7 +1536,7 @@ function! s:updateLocalCache(updateData) "{{{
     call s:setClassData(fqcn, file, classData)
     call s:updateIntrospectionData('extends', fqcn, extendsData)
     call s:updateIntrospectionData('implements', fqcn, implementsData)
-    call s:updateMenuEntries(classData['className'])
+    call s:updateMenuEntries(classData['classname'])
 endfunction "}}}
 
 function! s:updateIntrospectionData(type,fqcn, data) "{{{
