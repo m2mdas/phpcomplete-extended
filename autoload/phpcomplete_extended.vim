@@ -1273,15 +1273,6 @@ function! s:loadIndex() " {{{
             call add(s:disabled_projects, getcwd())
             return
         endif
-        let composer_message = "Do you want to create composer autoload classmap?"
-        let ret = phpcomplete_extended#util#input_yesno(composer_message)
-        if ret
-            echon "\n"
-            call phpcomplete_extended#util#print_message("Generating autoload classmap")
-            let composer_command = g:phpcomplete_index_composer_command . " dumpautoload --optimize"
-            echon vimproc#system(composer_command)
-        endif
-        echon "\n"
         call phpcomplete_extended#generateIndex()
     endif
 
@@ -1416,6 +1407,7 @@ function! phpcomplete_extended#generateIndex() "{{{
     call s:makeCacheDir()
     call s:copyCoreIndex()
     call s:register_plugins()
+
     let input = g:phpcomplete_extended_root_dir . "/bin/IndexGenerator.php generate"
     let input = phpcomplete_extended#util#substitute_path_separator(input)
 
@@ -1425,6 +1417,10 @@ function! phpcomplete_extended#generateIndex() "{{{
     "echoerr cmd
     "return
     echomsg "Generating index..."
+
+    let composer_command = g:phpcomplete_index_composer_command . " dumpautoload --optimize  1>/dev/null 2>&1"
+    call vimproc#system(composer_command)
+
     let out =  vimproc#system(cmd)
     if out == "success"
         echomsg "Index generated"
