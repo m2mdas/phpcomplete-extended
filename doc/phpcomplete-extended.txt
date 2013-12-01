@@ -170,6 +170,13 @@ PHPCompleteExtendedUpdateIndex			*PHPCompleteExtendedUpdateIndex*
 PHPCompleteExtendedCheckUpdate			*PHPCompleteExtendedCheckUpdate*
 		Manually issue check update command. Used for debug purpose.
 
+PHPCompleteExtendedDisable			*PHPCompleteExtendedDisable*
+		Disables PHP autocomplete
+
+PHPCompleteExtendedEnable			*PHPCompleteExtendedEnable*
+		Enables PHP autocomplete
+
+
 
 ==============================================================================
 Functions					*phpcomplete-extended-functions*

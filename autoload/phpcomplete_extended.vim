@@ -49,6 +49,10 @@ if !exists("s:psr_class_complete")
     let s:psr_class_complete = 0
 endif
 
+if !exists("s:phpcomplete_enabled")
+    let s:phpcomplete_enabled = 1
+endif
+
 let s:disabled_projects = []
 
 let s:T = {
@@ -69,6 +73,10 @@ function! phpcomplete_extended#CompletePHP(findstart, base) " {{{
             let b:completeContext.base = getline('.')[start : col('.')-2]
         endif
         return start
+    endif
+
+    if !s:phpcomplete_enabled
+        return []
     endif
 
     if !phpcomplete_extended#is_phpcomplete_extended_project()
@@ -132,9 +140,10 @@ function! s:get_complete_start_pos() "{{{
     while start >= 0 && line[start - 1] =~ '[\\a-zA-Z_0-9\x7f-\xff$]'
         let start -= 1
     endwhile
+
     let b:completeContext = {}
     let completeContext = s:get_complete_context()
-    if empty(completeContext)
+    if empty(completeContext) || !s:phpcomplete_enabled
         return start
     endif
     let b:completeContext = completeContext
@@ -1719,6 +1728,39 @@ function! s:get_plugin_inside_qoute_menu_entries(fqcn, lastToken) "{{{
         endif
     endfor
     return menu_entries
+endfunction "}}}
+
+function! phpcomplete_extended#init_autocmd() "{{{
+    augroup phpcomplete-extended
+        autocmd!
+        "Todo add configuration option to load later
+        autocmd BufWinEnter,BufEnter  * call phpcomplete_extended#readDataForProject()
+        autocmd VimLeave *     call phpcomplete_extended#saveIndexCache()
+        autocmd BufWritePost *.php call phpcomplete_extended#updateIndex(1)
+
+        autocmd CursorHold *     call phpcomplete_extended#saveIndexCache()
+        autocmd CursorHold *     call phpcomplete_extended#checkUpdates()
+        autocmd CursorMoved,CursorMovedI *.php call phpcomplete_extended#checkUpdates()
+        autocmd CursorMovedI *.php call phpcomplete_extended#trackMenuChanges()
+    augroup END
+endfunction "}}}
+
+function! phpcomplete_extended#enable() "{{{
+    let s:phpcomplete_enabled = 1
+    call phpcomplete_extended#init_autocmd()
+
+    command! -nargs=0 -bar PHPCompleteExtendedDisable
+          \ call phpcomplete_extended#disable()
+
+endfunction "}}}
+
+function! phpcomplete_extended#disable() "{{{
+    let s:phpcomplete_enabled = 0
+  augroup phpcomplete-extended
+    autocmd!
+  augroup END
+
+  silent! delcommand PHPCompleteExtendedDisable
 endfunction "}}}
 
 let &cpo = s:save_cpo
