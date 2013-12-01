@@ -296,7 +296,10 @@ function! s:guessTypeOfParsedTokens(parsedTokens) "{{{
         elseif has_key(g:phpcomplete_index['classes'], methodPropertyText)
             \ || has_key(g:phpcomplete_extended_core_index['classes'], methodPropertyText)
             let currentFQCN = methodPropertyText
-        elseif has_key(sourceData['namespaces']['uses'], methodPropertyText)
+        elseif has_key(sourceData, 'namespaces')
+                    \ && has_key(sourceData['namespaces'], 'uses')
+                    \ && !empty(sourceData['namespaces']['uses'])
+                    \ && has_key(sourceData['namespaces']['uses'], methodPropertyText)
             let currentFQCN = sourceData['namespaces']['uses'][methodPropertyText]. "\\" . methodPropertyText
 
         elseif !empty(aliases) && has_key(aliases, methodPropertyText)
