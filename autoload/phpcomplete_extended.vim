@@ -1573,8 +1573,9 @@ function! s:updateMenuEntries(className) "{{{
     for class_menu_entry in class_menu_entries
         if class_menu_entry['word'] =~ '^'. className
             call remove(class_menu_entries, idx)
+        else
+            let idx = idx + 1
         endif
-        let idx = idx + 1
     endfor
 
     let menu_entries = []
