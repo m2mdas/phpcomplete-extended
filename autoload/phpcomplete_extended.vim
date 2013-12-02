@@ -543,7 +543,7 @@ function! phpcomplete_extended#addUse(word, fqcn) "{{{
     endif
 
 
-    let lines_to_class = getline(0, search('^\s*class'))
+    let lines_to_class = getline(0, search('^\s*\(class\|interface\)'))
     call setpos('.', cur_pos)
 
     if empty(lines_to_class) || phpcomplete_extended#util#trim(lines_to_class[0]) != "<?php"
