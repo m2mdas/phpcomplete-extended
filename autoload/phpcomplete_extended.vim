@@ -1287,6 +1287,7 @@ function! s:loadIndex() " {{{
             call add(s:disabled_projects, getcwd())
             return
         endif
+        echo "\n\n"
         call phpcomplete_extended#generateIndex()
     endif
 
