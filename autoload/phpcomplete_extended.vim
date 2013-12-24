@@ -1418,6 +1418,11 @@ function! phpcomplete_extended#loadCoreIndex() "{{{
 endfunction "}}}
 
 function! phpcomplete_extended#generateIndex() "{{{
+    if !s:valid_composer_command()
+        echoerr printf('The composer command "%s" is not a valid Composer command. Please set g:phpcomplete_index_composer_command in your .vimrc file', g:phpcomplete_index_composer_command)
+        return
+    endif
+
     call s:makeCacheDir()
     call s:copyCoreIndex()
     call s:register_plugins()
@@ -1430,16 +1435,23 @@ function! phpcomplete_extended#generateIndex() "{{{
     let cmd = 'php ' . input . plugin_php_file_command
     "echoerr cmd
     "return
-    echomsg "Generating index..."
 
     let composer_command = g:phpcomplete_index_composer_command . " dumpautoload --optimize  1>/dev/null 2>&1"
+    echomsg "Generating autoload classmap"
     call vimproc#system(composer_command)
 
+    echomsg "Generating index..."
     let out =  vimproc#system(cmd)
     if out == "success"
         echomsg "Index generated"
     endif
     echo out
+endfunction "}}}
+
+function! s:valid_composer_command() "{{{
+    let cmd    = printf('%s --version', g:phpcomplete_index_composer_command)
+    let output = system(cmd)
+    return output =~ '^Composer version'
 endfunction "}}}
 
 function! phpcomplete_extended#updateIndex(background) "{{{
