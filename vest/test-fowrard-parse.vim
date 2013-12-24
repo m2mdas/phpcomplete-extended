@@ -54,7 +54,7 @@ Context forward_parser
                     \ '$foo->bar->baz();'
                     \ ,[]),
                     \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$foo', 'start': 1},
-                    \  {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '', 'start': 0},
+                    \  {'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': 'bar', 'start': 0},
                     \  {'insideBraceText': '', 'isMethod': 1, 'methodPropertyText': 'baz', 'pEnd': 1, 'start': 0}]
 
         ShouldEqual phpcomplete_extended#parser#forwardParse(

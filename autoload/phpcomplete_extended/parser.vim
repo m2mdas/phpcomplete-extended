@@ -375,7 +375,10 @@ function! phpcomplete_extended#parser#forwardParse(line, parsedTokens) "{{{
                         \ || parser.next_is('square_brace_open') 
                         \ || parser.next_is('semicolon'))
                 let methodPropertyText .= identifier
-            elseif previousToken == "object_resolutor" && (parser.next_is('open_brace') || parser.next_is('square_brace_open') || parser.next_is('semicolon'))
+            elseif previousToken == "object_resolutor" && (parser.next_is('open_brace') 
+                            \ || parser.next_is('square_brace_open') 
+                            \ || parser.next_is('semicolon') 
+                            \ || parser.next_is('object_resolutor'))
                 let methodPropertyText .= identifier
 
             elseif previousToken == "whitespace"
