@@ -1529,7 +1529,8 @@ endfunction "}}}
 
 function! s:readIndex(filename) "{{{
     if(!filereadable(a:filename))
-        throw "file " . a:filename " is not readable"
+        echoerr printf('Could not read index file %s', fnamemodify(a:filename, ':.'))
+        return
     endif
     let file_content = readfile(a:filename)
     let true = 1
