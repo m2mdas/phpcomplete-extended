@@ -908,7 +908,9 @@ class IndexGenerator
             if($type=='method'){         
                 switch ($splits[0]) {
                 case '@param':
-                    if(count($splits) == 2) {
+                    if(count($splits) == 1) {
+                        continue;
+                    } elseif(count($splits) == 2) {
                         $splits[2] = $splits[1];
                     }
                     $out['params'][$splits[2]] = $splits[1];
