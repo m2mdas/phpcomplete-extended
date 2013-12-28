@@ -1300,6 +1300,7 @@ function! s:loadIndex() " {{{
         endif
 
         let g:phpcomplete_index = s:readIndex(index_file)
+        call phpcomplete_extended#util#print_message("Index Loaded.")
         let g:phpcomplete_index_loaded = 1
     endif
 
