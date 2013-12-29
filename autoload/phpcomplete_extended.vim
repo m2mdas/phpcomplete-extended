@@ -697,7 +697,7 @@ function! s:getJumpDataOfCurrentWord(type) "{{{
     if match_till_cur_word[len(match_till_cur_word)-1] == "("
         let match_till_cur_word .= "'')"
     endif
-    let parsedTokens = phpcomplete_extended#parsereverse(match_till_cur_word, getline('.'))
+    let parsedTokens = phpcomplete_extended#parsereverse(match_till_cur_word, line('.'))
 
     if empty(parsedTokens)
         return {}
