@@ -1559,6 +1559,9 @@ function! s:updateIntrospectionData(type,fqcn, data) "{{{
     let fqcn = a:fqcn
     let data = a:data
     let collection = g:phpcomplete_index[type]
+    if type(data) != type({})
+        return
+    endif
     for added in data['added']
         if !has_key(collection, added)
             let collection[added] = []
