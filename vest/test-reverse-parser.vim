@@ -192,6 +192,14 @@ Context reverse_parser
                     \,[]),
                     \ [{'insideBraceText': '', 'isMethod': 0, 'isNew': 1, 'methodPropertyText': 'Foo', 'start': 1}]
 
+        ShouldEqual phpcomplete_extended#parser#reverseParse(
+                    \ "$this->foo('session')->bar()->baz($bzz, $zzzz)"
+                    \,[]),
+                    \ [{'insideBraceText': '', 'isMethod': 0, 'methodPropertyText': '$this', 'start': 1},
+                    \ {'insideBraceText': "'session'", 'isMethod': 1, 'methodPropertyText': 'foo', 'start': 0},
+                    \ {'insideBraceText': '', 'isMethod': 1, 'methodPropertyText': 'bar', 'start': 0},
+                    \ {'insideBraceText': '$bzz,$zzzz', 'isMethod': 1, 'methodPropertyText': 'baz', 'start': 0}]
+
     End
 
 End

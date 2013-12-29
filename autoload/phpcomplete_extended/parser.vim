@@ -167,6 +167,7 @@ function! phpcomplete_extended#parser#reverseParse(line, parsedTokens) "{{{
                         \ || (close_brace == ']' && parser.next_is('square_brace_open'))
                         \ || (previousToken == 'object_resolutor' || previousToken == 'static_resolutor')
                         \ || (parser.next_is('single_quote') || parser.next_is('double_quote'))
+                        \ || (parser.next_is('identifier'))
                     \))
                 call List.push(braceStack, close_brace)
                 if (close_brace == ")" && isArray && previousToken == "square_brace_open")
