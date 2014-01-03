@@ -70,8 +70,8 @@ command! -nargs=0 -bar PHPCompleteExtendedReload
 command! -nargs=0 -bar PHPCompleteExtendedClearIndexCache
       \ call phpcomplete_extended#clearIndexCache()
 
-command! -nargs=0 -bar PHPCompleteExtendedGenerateIndex
-      \ call phpcomplete_extended#generateIndex()
+command! -nargs=? -bar PHPCompleteExtendedGenerateIndex
+      \ call phpcomplete_extended#generateIndex("<args>")
 
 command! -nargs=0 -bar PHPCompleteExtendedUpdateIndex
       \ call phpcomplete_extended#updateIndex(0)

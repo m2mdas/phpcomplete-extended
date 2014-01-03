@@ -1419,7 +1419,7 @@ function! phpcomplete_extended#loadCoreIndex() "{{{
     let g:core_index_loaded = 1
 endfunction "}}}
 
-function! phpcomplete_extended#generateIndex() "{{{
+function! phpcomplete_extended#generateIndex(...) "{{{
     if !s:valid_composer_command()
         echoerr printf('The composer command "%s" is not a valid Composer command. Please set g:phpcomplete_index_composer_command in your .vimrc file', g:phpcomplete_index_composer_command)
         return
@@ -1430,6 +1430,9 @@ function! phpcomplete_extended#generateIndex() "{{{
     call s:register_plugins()
 
     let input = g:phpcomplete_extended_root_dir . "/bin/IndexGenerator.php generate"
+    if len(a:000) == 1 && a:1 == '-verbose'
+        let input .= ' -verbose'
+    endif
     let input = phpcomplete_extended#util#substitute_path_separator(input)
 
     let plugin_php_file_command = join(map(copy(s:plugin_php_files), '" -u ".v:val'))
@@ -1502,7 +1505,12 @@ function! phpcomplete_extended#checkUpdates() "{{{
         let update_file = phpcomplete_extended#util#substitute_path_separator(fnamemodify(getcwd(), ':p:h').'/.phpcomplete_extended/'.s:update_info['update_file_name'])
 
         if filereadable(update_file)
-            let updateData = s:readIndex(update_file)
+            try
+                let updateData = s:readIndex(update_file)
+            catch 
+                echoerr "Error occured while reading update index"
+                return
+            endtry
 
             call s:updateLocalCache(updateData)
             call delete(update_file)

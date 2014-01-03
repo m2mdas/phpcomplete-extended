@@ -37,8 +37,14 @@ if(php_sapi_name() == 'cli') {
         array_shift($argv);
         array_shift($argv);
 
+        $verbose = false;
+        if($argv[0] == '-verbose') {
+            array_shift($argv);
+            $verbose = true;
+        }
+
         //$time = microtime(true); 
-        $phpCompletePsr  = new IndexGenerator();
+        $phpCompletePsr  = new IndexGenerator($verbose);
 
         $plugins = explode("-u", implode("", $argv));
         foreach ($plugins as $pluginFile) {
@@ -56,8 +62,9 @@ if(php_sapi_name() == 'cli') {
         array_shift($argv);
         $file = array_shift($argv);
         $cacheFileName = array_shift($argv);
+        $verbose = false;
 
-        $p = new IndexGenerator();
+        $p = new IndexGenerator($verbose);
         $plugins = explode("-u", implode("", $argv));
         foreach ($plugins as $pluginFile) {
             if(empty($pluginFile)) {
@@ -169,7 +176,14 @@ class IndexGenerator
      */
     public $plugins;
 
-    public function __construct() 
+    /**
+     * Verbosity
+     *
+     * @var bool
+     */
+    private $verbose;
+
+    public function __construct($verbose) 
     {
         $this->file_fqcn        = array();
         $this->fqcn_file        = array();
@@ -185,6 +199,7 @@ class IndexGenerator
         $this->parsedClasses    = array();
         $this->plugins = array();
         $this->loader = require 'vendor/autoload.php';
+        $this->verbose = $verbose;
     }
 
     public function addPlugin($pluginFile)
@@ -427,6 +442,9 @@ class IndexGenerator
                 $out['namespaces'][] = $namespace;
             }
 
+            if($this->verbose) {
+                echo "processing $file\n";
+            }
             $classData = $this->processClass($fqcn);
             $out['classes'][$fqcn] = $classData;
 
