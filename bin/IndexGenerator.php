@@ -1482,6 +1482,9 @@ class IndexGenerator
                 }
             }
             if(preg_match($classNameregex, $line, $matches)) {
+                if(strlen($className) > 0){
+                    continue;
+                }
                 $className = $matches[4];
                 if(!empty($matches[6])) { //extends
                     $extends = trim($matches[6], " \n\r");
