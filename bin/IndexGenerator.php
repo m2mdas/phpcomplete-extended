@@ -55,7 +55,15 @@ if(php_sapi_name() == 'cli') {
         }
 
         $index  = $phpCompletePsr->generateIndex();
-        $phpCompletePsr->writeToFile($phpCompletePsr->getIndexFileName(), json_encode($index));
+
+        $jsonIndex = json_encode($index);
+        $lastJsonError = json_last_error();
+        if($lastJsonError != JSON_ERROR_NONE) {
+            printJsonError($lastJsonError);
+            exit;
+        }
+
+        $phpCompletePsr->writeToFile($phpCompletePsr->getIndexFileName(), $jsonIndex);
         $phpCompletePsr->writeToFile($phpCompletePsr->getReportFileName(), implode("\n", $phpCompletePsr->getInvalidClasses()));
     } else if($argv[1] == 'update') {
         array_shift($argv);
@@ -82,6 +90,34 @@ if(php_sapi_name() == 'cli') {
     }
 } else {
     exit;
+}
+
+function printJsonError($errorCode)
+{
+    switch (json_last_error()) {
+    case JSON_ERROR_NONE:
+        echo ' - No errors';
+        break;
+    case JSON_ERROR_DEPTH:
+        echo ' - Maximum stack depth exceeded';
+        break;
+    case JSON_ERROR_STATE_MISMATCH:
+        echo ' - Underflow or the modes mismatch';
+        break;
+    case JSON_ERROR_CTRL_CHAR:
+        echo ' - Unexpected control character found';
+        break;
+    case JSON_ERROR_SYNTAX:
+        echo ' - Syntax error, malformed JSON';
+        break;
+    case JSON_ERROR_UTF8:
+        echo ' - Malformed UTF-8 characters, possibly incorrectly encoded';
+        break;
+    default:
+        echo ' - Unknown error';
+        break;
+    }
+    echo "\n";
 }
 
 class IndexGenerator
