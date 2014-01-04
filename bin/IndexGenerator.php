@@ -1085,7 +1085,9 @@ class IndexGenerator
             $comment = str_replace("/", '', $comment, $count);
             $newComments[] = $comment;
         }
-        return join("\n", $newComments);
+        $docComment = join("\n", $newComments);
+        $docComment = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($docComment));
+        return $docComment;
     }
 
     private function getEmptyMergeProperty() 
