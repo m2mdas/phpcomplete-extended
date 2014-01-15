@@ -1456,7 +1456,7 @@ endfunction "}}}
 function! s:valid_composer_command() "{{{
     let cmd    = printf('%s --version', g:phpcomplete_index_composer_command)
     let output = system(cmd)
-    return output =~ '^Composer version'
+    return output =~ 'Composer version'
 endfunction "}}}
 
 function! phpcomplete_extended#updateIndex(background) "{{{
