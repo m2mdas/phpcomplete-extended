@@ -38,7 +38,7 @@ if(php_sapi_name() == 'cli') {
         array_shift($argv);
 
         $verbose = false;
-        if($argv[0] == '-verbose') {
+        if(count($argv) > 0 && $argv[0] == '-verbose') {
             array_shift($argv);
             $verbose = true;
         }
