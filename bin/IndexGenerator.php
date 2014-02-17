@@ -462,6 +462,9 @@ class IndexGenerator
                 continue;
             }
 
+            if($this->verbose) {
+                echo "processing $file\n";
+            }
 
             if(!$this->validateClass($file)) {
                 $this->invalidClasses[] = $file;
@@ -478,9 +481,6 @@ class IndexGenerator
                 $out['namespaces'][] = $namespace;
             }
 
-            if($this->verbose) {
-                echo "processing $file\n";
-            }
             $classData = $this->processClass($fqcn);
             $out['classes'][$fqcn] = $classData;
 
