@@ -930,10 +930,16 @@ class IndexGenerator
 
     private function getConstantData(ReflectionClass $reflectionClass, &$classData)
     {
+        $constants = array();
         try {
             $constants = $reflectionClass->getConstants();
         } catch (\Exception $e) {
             //echo  $e->getMessage();
+        }
+        foreach ($constants as $key => $value) {
+            if(is_string($value)) {
+                $constants[$key] = $this->fixUTF8($value);
+            }
         }
         $classData['constants'] = $constants;
     }
@@ -1122,9 +1128,15 @@ class IndexGenerator
             $newComments[] = $comment;
         }
         $docComment = join("\n", $newComments);
-        $docComment = iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($docComment));
+        $docComment = $this->fixUTF8($docComment);
         return $docComment;
     }
+
+    private function fixUTF8($content)
+    {
+        return iconv('UTF-8', 'UTF-8//IGNORE', utf8_encode($content));
+    }
+
 
     private function getEmptyMergeProperty() 
     {
