@@ -446,18 +446,25 @@ class IndexGenerator
         $count = 0;
         foreach($classMap as $fqcn => $file) {
             if(
-                preg_match('/Test/',$file) 
+                preg_match('/DateSelect/', $file) //zend
+                //|| preg_match('/DateTime/', $file) //zend
+                || preg_match('/DateTimeSelect/', $file) //zend
+                || preg_match('/MonthSelect/', $file) //zend
+                //|| preg_match('/PropelDataCollector/', $file) //zend
+            ){
+                continue;
+            }
+
+            if(
+                !array_key_exists('PHPUnit_Framework_TestCase', $this->fqcn_file) &&
+                (preg_match('/Test/',$file) 
                 || preg_match('/TestCase/'         , $file)
                 || preg_match('/0/'                , $fqcn)
                 || preg_match('/Fixtures/'         , $file)
                 || preg_match('/Test/'             , $file)
                 //|| preg_match('/Command/'             , $file)
                 || preg_match('/DataFixtures/'     , $file)
-                || preg_match('/DateSelect/', $file) //zend
-                //|| preg_match('/DateTime/', $file) //zend
-                || preg_match('/DateTimeSelect/', $file) //zend
-                || preg_match('/MonthSelect/', $file) //zend
-                //|| preg_match('/PropelDataCollector/', $file) //zend
+                )
             ){
                 continue;
             }
