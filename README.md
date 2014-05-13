@@ -50,7 +50,7 @@ various plugin managers are given bellow.
 Issue following commands.
 
 ```sh
-git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle
+git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle/vimproc.vim
 cd ~/.vim/bundle/vimproc.vim
 make
 cd ..
