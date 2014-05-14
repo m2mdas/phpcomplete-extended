@@ -50,12 +50,12 @@ various plugin managers are given bellow.
 Issue following commands.
 
 ```sh
-git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle
+git clone https://github.com/Shougo/vimproc.vim.git ~/.vim/bundle/vimproc.vim
 cd ~/.vim/bundle/vimproc.vim
 make
 cd ..
-git clone https://github.com/Shougo/unite.vim.git ~/.vim/bundle
-git clone https://github.com/m2mdas/phpcomplete-extended.git ~/.vim/bundle
+git clone https://github.com/Shougo/unite.vim.git ~/.vim/bundle/unit.vim
+git clone https://github.com/m2mdas/phpcomplete-extended.git ~/.vim/bundle/phpcomplete-extended
 ```
 
 ## NeoBundle (preferred)
