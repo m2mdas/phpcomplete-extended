@@ -909,7 +909,7 @@ class IndexGenerator
                     $arrayReturn = 1;
                     $rType = trim($rType, "[]");
                 }
-                if(!$this->isScalar($rType)) {
+                if(!empty($rType) && !$this->isScalar($rType)) {
                     $returnType = $rType;
                     if($returnType[0] == '\\') {
                         $returnType = substr($returnType, 1);
