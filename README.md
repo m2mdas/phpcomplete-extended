@@ -81,11 +81,11 @@ compile the library.
 
 ## Vundle
 
-Put following lines in `.vimrc` and issue `:BundleInstall` command.
+Put following lines in `.vimrc` and issue `:PluginInstall` command.
 ```vim
-Bundle 'Shougo/vimproc'
-Bundle 'Shougo/unite.vim'
-Bundle 'm2mdas/phpcomplete-extended'
+Plugin 'Shougo/vimproc'
+Plugin 'Shougo/unite.vim'
+Plugin 'm2mdas/phpcomplete-extended'
 "your other plugins
 "....
 ```
